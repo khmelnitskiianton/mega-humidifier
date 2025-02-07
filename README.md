@@ -64,11 +64,11 @@
 
 **Схема питания модулей:**
 
-![СХЕМА](https://github.com/khmelnitskiianton/mega-humidifier/blob/main/schemes/scheme_arduino.png)
+![СХЕМА](https://github.com/khmelnitskiianton/mega-humidifier/blob/main/schemes/scheme_elec.png)
 
 **[Схема](./schemes/scheme_arduino.fzz) (выполнена в Fritzing) подключения датчиков к Arduino Nano(лежит в `./schemes`):**
 
-![СХЕМА](https://github.com/khmelnitskiianton/mega-humidifier/blob/main/schemes/scheme_elec.png)
+![СХЕМА](https://github.com/khmelnitskiianton/mega-humidifier/blob/main/schemes/scheme_arduino.png)
 
 **Датчики и элементы:**
 
