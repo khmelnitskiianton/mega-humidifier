@@ -62,13 +62,13 @@
 
 На вентилятор подается 10В через ШИМ и MOSFET транзистор.
 
-**[Схема](./schemes/scheme_arduino.fzz) (выполнена в Fritzing) подключения датчиков к Arduino Nano:**
-
-![СХЕМА](https://github.com/khmelnitskiianton/mega-humidifier/blob/master/schemes/scheme_arduino.png)
-
 **Схема питания модулей:**
 
-![СХЕМА](https://github.com/khmelnitskiianton/mega-humidifier/blob/master/schemes/scheme_elec.png)
+![СХЕМА](https://github.com/khmelnitskiianton/mega-humidifier/blob/main/schemes/scheme_arduino.png)
+
+**[Схема](./schemes/scheme_arduino.fzz) (выполнена в Fritzing) подключения датчиков к Arduino Nano(лежит в `./schemes`):**
+
+![СХЕМА](https://github.com/khmelnitskiianton/mega-humidifier/blob/main/schemes/scheme_arduino.png)
 
 **Датчики и элементы:**
 
@@ -98,9 +98,9 @@
 1. Управление работой увлажнителя (а именно испарителя и вентилятора) с помощью MOSFET транзисторов.
 2. Создание интерфейса для более удобного управления пользователем увлажнителя с
 помощью вывода информации на дисплей и управления модулями с помощью кнопок и регуляторов.
-3. Измерение и мониторинг показателей микроклимата в квартире (влажность и
+1. Измерение и мониторинг показателей микроклимата в квартире (влажность и
 температура).
-4. Контроль работы с помощью индикации, а также сигнализировании пользователя о завершении работы с помощью звукового модуля.
+1. Контроль работы с помощью индикации, а также сигнализировании пользователя о завершении работы с помощью звукового модуля.
 
 **Описание кода:**
 
