@@ -5,7 +5,7 @@
 #include <RTClib.h>
 
 RTC_DS3231 rtc;
-char daysOfTheWeek[7][12] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+char daysOfTheWeek[7][5] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
       
 LiquidCrystal_I2C lcd(0x27,20,4);   // Объявляем  объект библиотеки, указывая параметры дисплея (адрес I2C = 0x27, количество столбцов = 20, количество строк = 4)
                                     // Если надпись не появилась, замените адрес 0x27 на 0x3F
@@ -15,7 +15,9 @@ DHT sens(DHT11);
 //! Время сеанса, настраивается в мс
 // 9 часов = 32400000 мс, 8 часов = 28800000 мс, 7 часов = 25200000 мс, 6 часов = 21600000 мс, 5 часов = 18000000 мс
 //unsigned long last_time = 21600000;
-unsigned long last_time = 20000;
+
+unsigned long last_time = 40000;
+
 //! Границы влажности, настраивается в %
 int min_hum = 30; // минимальная допустимая влажность
 int max_hum = 50; // максимальная допустимая влажность
@@ -64,7 +66,7 @@ void setup()
   pinMode(light_pin_blue, OUTPUT);      // blue
   pinMode(button_pin, INPUT_PULLUP);    // кнопка подтянута внутренним резистором (урок 5)
   pinMode(relay_pin, OUTPUT);           // пин реле как выход
-  digitalWrite(relay_pin, LOW);
+  digitalWrite(relay_pin, HIGH);
   delay(1000);
 }
 
@@ -90,16 +92,12 @@ void loop()
     butt_flag = 1;          // запоминаем, что нажимали кнопку
     flag = !flag;           // инвертируем флажок
     last_press = millis();  // запоминаем время
+	
+    // Светодиод синий
     digitalWrite(light_pin_green, LOW);
     digitalWrite(light_pin_blue, HIGH);
     digitalWrite(light_pin_red, LOW);
-    lcd.setCursor(0, 1);
-    lcd.print("      <PAUSE>      ");
-    lcd.setCursor(0, 2);
-    lcd.print("                    ");
-    time_rest();
-    lcd.setCursor(0, 3);
-    lcd.print("                    ");
+    draw_pause();
     condition = flag;
     if (condition == 0){
       lcd.clear(); // При продолжении очищаем экран от текста паузы
@@ -115,7 +113,6 @@ void loop()
     deadlain_time();
   }
 
-
   // Увеличение времени отключения после паузы
   if (butt == 0 && butt_flag == 0 && flag == 0){
     last_time = last_time + end_time - start_time;
@@ -128,17 +125,20 @@ void loop()
 // функция измерения влажности и температуры (и отображение)
 void humidity(){
   int t = sens.readTemperature(datchik_pin); // чтение датчика на пине datchik_pin
-  int h = sens.readHumidity(datchik_pin);    // чтение датчика на пине datchik_pin
+  int h = sens.readHumidity(datchik_pin);
   if (h <= max_hum and h >= min_hum){ // изменение цвета светодиода в зависимости от "хорошей" влажности
+      // Светодиод зеленый	      
       digitalWrite(light_pin_green, HIGH);
       digitalWrite(light_pin_blue, LOW);
       digitalWrite(light_pin_red, LOW);
   } else {
+      // Светодиод красный
       digitalWrite(light_pin_red, HIGH);
       digitalWrite(light_pin_green, LOW);
       digitalWrite(light_pin_blue, LOW);
   }
   if(end_tim > 1){
+      // Вывод статистики
       lcd.setCursor(5, 2);
       lcd.print("Hum: ");
       lcd.print(h);
@@ -159,8 +159,8 @@ void humidity(){
 // функция отключения питания
 void stop_relay_sound(){
   if((millis() - last_time >= 0) && (millis() - last_time <= 100)){
-    digitalWrite(relay_pin, LOW);
-    tone(sound_pin, tone_sound);
+    digitalWrite(relay_pin, LOW); // Off питания
+    tone(sound_pin, tone_sound);  // Звук окончания
     delay(sound_time);
     noTone(sound_pin);
   }
@@ -186,13 +186,16 @@ void deadlain_time(){
         lcd.print(" sec  ");                                      // финальный вывод завершения работы  
     } else if (end_tim <= 0) {
         final_end = 1;
+
+	// Конечное сообщение
         lcd.clear();
         lcd.setCursor(0, 1);
         lcd.print("   END OF SESSION ");
         lcd.setCursor(0, 2);
         lcd.print("    PRESS <Reset>  ");
-        digitalWrite(relay_pin, LOW);
-        digitalWrite(light_pin_red, LOW);
+        
+	// Светодиод синим
+	digitalWrite(light_pin_red, LOW);
         digitalWrite(light_pin_green, LOW);
         digitalWrite(light_pin_blue, HIGH);
     }
@@ -232,4 +235,14 @@ void real_time(){
   lcd.print(", ");
   lcd.print(daysOfTheWeek[now.dayOfTheWeek()]);
   lcd.print("  ");
+}
+
+void draw_pause(){
+    lcd.setCursor(0, 1);
+    lcd.print("      <PAUSE>      ");
+    lcd.setCursor(0, 2);
+    lcd.print("                    ");
+    time_rest();
+    lcd.setCursor(0, 3);
+    lcd.print("                    ");
 }
