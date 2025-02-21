@@ -27,13 +27,13 @@ int sound_time = 400;  // Длительность писка
 
 // Далее идут номера пинов куда идёт подключение разных датчиков(можно изменить),
 // а также разных параметров, которые можно изменить
-#define light_pin_red 3     // пин красного светодиода
-#define light_pin_green 4   // пин зеленого светодиода
-#define light_pin_blue 5    // пин голубого светодиода
-#define relay_pin 6         // пин  2-х реле
-#define datchik_pin 7       // пин датчика
+#define light_pin_red 5     // пин красного светодиода
+#define light_pin_green 6   // пин зеленого светодиода
+#define light_pin_blue 7    // пин голубого светодиода
+#define relay_pin 3         // пин MOSFET
+#define datchik_pin 4       // пин датчика
 #define sound_pin 8         // пин пищалки 
-#define button_pin 9        // пин кнопки
+#define button_pin 2        // пин кнопки
 //====================================================
 
 uint32_t tim, end_tim;         

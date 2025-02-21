@@ -75,6 +75,10 @@
 
 ![СХЕМА](./schemes/scheme_arduino.png)
 
+Была смоделирована, а затем создана плата для сборки всех датчиков с помощью KiCad и FlatCam и распечатана на фрезерном станке Charly4U:
+
+![СХЕМА](./schemes/scheme_plate.png)
+
 **Датчики и элементы:**
 
 + Arduino Nano
