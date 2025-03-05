@@ -149,10 +149,10 @@ void humidity(){
       lcd.print((char)223); //symbol of Celsium  
       lcd.print("C  ");
       
-      //Serial.print("Hum: ");
-      //Serial.print(h);
-      //Serial.print(" T: ");
-      //Serial.println(t);
+      Serial.print("Hum: ");
+      Serial.print(h);
+      Serial.print(" T: ");
+      Serial.println(t);
   } 
 }
 
@@ -195,7 +195,7 @@ void deadlain_time(){
         lcd.print("    PRESS <Reset>  ");
         
 	// Светодиод синим
-	digitalWrite(light_pin_red, LOW);
+	      digitalWrite(light_pin_red, LOW);
         digitalWrite(light_pin_green, LOW);
         digitalWrite(light_pin_blue, HIGH);
     }
