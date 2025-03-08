@@ -84,10 +84,10 @@ void loop()
   if (butt == 1 && butt_flag == 0 && millis() - last_press > 100 && final_end == 0) {  // если кнопка НАЖАТА, до этого была ОТПУЩЕНА
     if (flag == 0){
       start_time = millis();
-      digitalWrite(relay_pin, HIGH);
+      digitalWrite(relay_pin, LOW);
     } else {
       end_time = millis();
-      digitalWrite(relay_pin, LOW);
+      digitalWrite(relay_pin, HIGH);
     }
     butt_flag = 1;          // запоминаем, что нажимали кнопку
     flag = !flag;           // инвертируем флажок
