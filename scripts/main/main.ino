@@ -1,41 +1,30 @@
-
 #include <Wire.h>               // Подключаем библиотеку для работы с шиной I2C
 #include <stDHT.h>              // Подключаем библиотеку для работы с датчиком влажности DHT11
 #include <LiquidCrystal_I2C.h>  // Подключаем библиотеку для работы с LCD дисплеем по шине I2C
 #include <RTClib.h>
 
+// Файл с параметрами работы увлажнителя
+#include <setup.inc>
+
 RTC_DS3231 rtc;
 char daysOfTheWeek[7][5] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
       
-LiquidCrystal_I2C lcd(0x27,20,4);   // Объявляем  объект библиотеки, указывая параметры дисплея (адрес I2C = 0x27, количество столбцов = 20, количество строк = 4)
+LiquidCrystal_I2C lcd(0x27,20,4);   // Объявляем  объект дисплея, указывая параметры дисплея (адрес I2C = 0x27, количество столбцов = 20, количество строк = 4)
                                     // Если надпись не появилась, замените адрес 0x27 на 0x3F
-DHT sens(DHT11);
+DHT sens(DHT11);  // Объявляем объект датчика влажности с указанием модели DHT11
 
-// Константы, которые можно менять
-//! Время сеанса, настраивается в мс
-// 9 часов = 32400000 мс, 8 часов = 28800000 мс, 7 часов = 25200000 мс, 6 часов = 21600000 мс, 5 часов = 18000000 мс
-//unsigned long last_time = 21600000;
-
-unsigned long last_time = 40000;
-
-//! Границы влажности, настраивается в %
-int min_hum = 30; // минимальная допустимая влажность
-int max_hum = 50; // максимальная допустимая влажность
-int tone_sound = 3000; // Тональность писка
-int sound_time = 400;  // Длительность писка
+// Номера пинов куда идёт подключение разных датчиков
 //====================================================
-
-// Далее идут номера пинов куда идёт подключение разных датчиков(можно изменить),
-// а также разных параметров, которые можно изменить
 #define light_pin_red 5     // пин красного светодиода
 #define light_pin_green 6   // пин зеленого светодиода
 #define light_pin_blue 7    // пин голубого светодиода
 #define relay_pin 3         // пин MOSFET
-#define datchik_pin 4       // пин датчика
+#define sensor_pin 4        // пин датчика
 #define sound_pin 8         // пин пищалки 
 #define button_pin 2        // пин кнопки
 //====================================================
 
+// Глобальные переменные
 uint32_t tim, end_tim;         
 boolean butt_flag = 0;      // флажок нажатия кнопки
 boolean butt;               // переменная, хранящая состояние кнопки
@@ -44,8 +33,7 @@ unsigned long last_press;   // таймер для фильтра дребезг
 boolean condition = 0;      
 boolean final_end = 0;
 unsigned long s_last_time = last_time / 1000; // время до отключения(увеличивается, если ставить на паузу) (с)
-unsigned long end_time;
-unsigned long start_time;
+unsigned long end_time, start_time;
 
 void setup() 
 {
@@ -53,20 +41,29 @@ void setup()
   lcd.init();           // Инициируем работу с LCD дисплеем
   lcd.backlight();      // Включаем подсветку LCD дисплея
 
+  // Обнаружение RTC
   if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
     Serial.flush();
   }
-  rtc.adjust(DateTime(2025, 1, 13, 20, 9, 0)); // Set current time to rtc in format (year,month,day,hours,minutes,seconds)
+  
+  // Инициализация и установка времени на rtc в формате (год,месяц,день,часы,минуты,секунды)
+  /*
+   * Note: При первой загрузке - измените аргументы DataTime на текущее время.
+   * При повторной загрузке - закомментируйте эту строку 
+   * (в противном случае время будет сбрасываться после каждой перезагрузке ардуино).
+  */
+  rtc.adjust(DateTime(2025, 3, 14, 15, 30, 0));
 
-  pinMode(datchik_pin, INPUT);
-  digitalWrite(datchik_pin, HIGH);
+  // Set all pins
+  pinMode(sensor_pin, INPUT);
+  digitalWrite(sensor_pin, HIGH);
   pinMode(light_pin_red, OUTPUT);       // red
   pinMode(light_pin_green, OUTPUT);     // green
   pinMode(light_pin_blue, OUTPUT);      // blue
   pinMode(button_pin, INPUT_PULLUP);    // кнопка подтянута внутренним резистором (урок 5)
   pinMode(relay_pin, OUTPUT);           // пин реле как выход
-  digitalWrite(relay_pin, HIGH);
+  digitalWrite(relay_pin, HIGH);        // сразу активируем MOSFET
   delay(1000);
 }
 
@@ -124,9 +121,9 @@ void loop()
 
 // функция измерения влажности и температуры (и отображение)
 void humidity(){
-  int t = sens.readTemperature(datchik_pin); // чтение датчика на пине datchik_pin
-  int h = sens.readHumidity(datchik_pin);
-  if (h <= max_hum and h >= min_hum){ // изменение цвета светодиода в зависимости от "хорошей" влажности
+  int t = sens.readTemperature(sensor_pin); // чтение датчика на пине sensor_pin
+  int h = sens.readHumidity(sensor_pin);
+  if (h <= max_hum and h >= min_hum){   // изменение цвета светодиода в зависимости от "хорошей" влажности
       // Светодиод зеленый	      
       digitalWrite(light_pin_green, HIGH);
       digitalWrite(light_pin_blue, LOW);
@@ -146,7 +143,7 @@ void humidity(){
       lcd.setCursor(4, 3);
       lcd.print("Temp: ");
       lcd.print(t);
-      lcd.print((char)223); //symbol of Celsium  
+      lcd.print((char)223); // Цельсий  
       lcd.print("C  ");
       
       Serial.print("Hum: ");
@@ -168,9 +165,9 @@ void stop_relay_sound(){
 
 // функция вывода на дисплей сколько осталось до конца
 void deadlain_time(){
-    tim   =  millis();  // сколько прошло с момента включения (мс)
-    end_tim = (last_time - tim)/1000; // сколько осталось (с)
-    lcd.setCursor(0, 1);  //  Устанавливаем курсор в позицию (0 столбец, 1 строка).
+    tim = millis();                     // Сколько прошло с момента включения (мс)
+    end_tim = (last_time - tim)/1000;   // Сколько осталось (с)
+    lcd.setCursor(0, 1);                // Устанавливаем курсор в позицию (0 столбец, 1 строка).
     lcd.print(" Time Rest: ");
     if (s_last_time >= end_tim && end_tim >= 7200){               // если осталось от 7 до 2 часов    
         lcd.print(end_tim / 3600);
@@ -187,42 +184,42 @@ void deadlain_time(){
     } else if (end_tim <= 0) {
         final_end = 1;
 
-	// Конечное сообщение
+	      // Конечное сообщение
         lcd.clear();
         lcd.setCursor(0, 1);
         lcd.print("   END OF SESSION ");
         lcd.setCursor(0, 2);
         lcd.print("    PRESS <Reset>  ");
         
-	// Светодиод синим
+	      // Светодиод синим
 	      digitalWrite(light_pin_red, LOW);
         digitalWrite(light_pin_green, LOW);
         digitalWrite(light_pin_blue, HIGH);
     }
 }
 
-//Prints in pause mode time of rest
+// Печатает в режиме паузы остаток времени
 void time_rest() {
     tim   =  millis();  // сколько прошло с момента включения (мс)
     end_tim = (last_time - tim)/1000; // сколько осталось (с)
     lcd.setCursor(0, 2);  //  Устанавливаем курсор в позицию (0 столбец, 1 строка).
     lcd.print(" Time Rest: ");
-    if (s_last_time >= end_tim && end_tim >= 7200){               // если осталось от 7 до 2 часов    
+      if (s_last_time >= end_tim && end_tim >= 7200){   // если осталось от 7 до 2 часов    
         lcd.print(end_tim / 3600);
         lcd.print(" hours ");                                      
-    } else if (end_tim < 7200 && end_tim >= 3600) {               // если остался 1 час
+    } else if (end_tim < 7200 && end_tim >= 3600) {     // если остался 1 час
         lcd.print(end_tim / 3600);
         lcd.print(" hour ");                                  
-    } else if (end_tim < 3600 && end_tim >= 60) {                 // если остался меньше часа
+    } else if (end_tim < 3600 && end_tim >= 60) {       // если остался меньше часа
         lcd.print(end_tim / 60);
         lcd.print(" min ");                                  
-    } else {                     // если остался меньше минуты
+    } else {                                            // если остался меньше минуты
         lcd.print(end_tim);
-        lcd.print(" sec ");                                      // финальный вывод завершения работы  
+        lcd.print(" sec ");                             // финальный вывод завершения работы  
     }
 }
 
-// функция вывода реального времени
+// Функция вывода реального времени
 void real_time(){
   DateTime now = rtc.now();
   lcd.setCursor(0, 0);
@@ -237,6 +234,7 @@ void real_time(){
   lcd.print("  ");
 }
 
+// Расчатка в режиме паузы
 void draw_pause(){
     lcd.setCursor(0, 1);
     lcd.print("      <PAUSE>      ");
