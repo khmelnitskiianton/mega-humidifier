@@ -61,7 +61,6 @@
 
 Используется понижающий преобразователь DC-DC (в данном случае с 24В до 7-12В) для питания Arduino Nano .
 
-
 **Датчики и элементы:**
 
 + Arduino Nano
@@ -185,6 +184,8 @@ https://github.com/user-attachments/assets/03b7d397-51f3-43c1-a0f4-bfc7255fe9b3
 - [Dzen RMNT.RU](https://dzen.ru/a/ZfLKBk9sOwf64ch5) - слабо.
 - [Алексей Федосенко Youtuber](https://www.youtube.com/watch?v=r24A2fugexM) - детский сад.
 - [VITEK VT-2348](https://ozon.ru/t/ggRDX7P) - больший функционал, дешевле.
+
+https://github.com/user-attachments/assets/1c645f1c-7396-49a5-b0d6-75ca31a28341
  
 ## Результаты и выводы
 
