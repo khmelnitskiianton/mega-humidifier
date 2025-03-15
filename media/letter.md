@@ -41,6 +41,7 @@ Github: [https://github.com/khmelnitskiianton/mega-humidifier](https://github.co
 
 Оно состоит из следующих компонентов:
 
++ Блок питания: 24В, >2А
 + Контроллер: Arduino Nano.
 + Испаритель: 24В с регулировкой подачи питания.
 + Вентилятор: 24В с ШИМ-регулированием.
